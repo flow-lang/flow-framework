@@ -1,0 +1,27 @@
+{
+  "name": "@flow-lang/framework",
+  "version": "1.0.0",
+  "description": "An Elm-inspired framework for interactive Web Audio applications.",
+  "browser": "dist/index.js",
+  "directories": {
+    "lib": "src",
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "parcel build src/index.js src/**/* -d dist --no-source-maps",
+    "dev": "parcel .dev/src/index.html -d .dev/build"
+  },
+  "keywords": [
+    "Elm",
+    "MVU",
+    "Web Audio API",
+    "framework"
+  ],
+  "author": "Andrew Thompson <andrew.thompson@qmul.ac.uk>",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.3"
+  }
+}
