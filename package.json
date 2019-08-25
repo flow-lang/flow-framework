@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "parcel build src/index.js src/**/* -d dist --no-source-maps",
-    "dev": "parcel .dev/src/index.html -d .dev/build"
+    "dev": "parcel .dev/src/index.html -d .dev/build",
+    "examples": "parcel examples/index.html -d .dev/build"
   },
   "keywords": [
     "Elm",
