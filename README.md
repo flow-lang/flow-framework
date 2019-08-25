@@ -9,9 +9,10 @@ Audio API.
 
 ## Motivation
 A number of projects exist to provide complete frameworks for building Web Audio
-applications such as BRAID<sup>[1](#braid)</sup>, WAAX<sup>[2](#waax)</sup>, and
-Flocking<sup>[3](#flocking)</sup>. All of these examples encourage a tight
-coupling between the UI and the audio graph:
+applications such as BRAID<sup name="braid-ref">[1](#braid)</sup>,
+WAAX<sup name="waax-ref">[2](#waax)</sup>, and
+Flocking<sup name="flocking-ref">[3](#flocking)</sup>. All of these examples
+encourage a tight coupling between the UI and the audio graph:
 
 - BRAID relies on global variables and callbacks attached to UI elements to
 directly manipulate audio nodes.
@@ -258,11 +259,15 @@ App.start({
 })
 ```
 
-## Contributing
+You can see the code for this example as one piece in
+[examples/counter/](/examples/counter/). Along with this counter example there
+are a few other example applications including:
 
+- [x] A step sequencer: [source](/examples/step-sequencer)
+- [ ] TODO A polyphonic synth: ~~[source]()~~
 
 ## References
-- <a name="braid">1</a>: BRAID: : A Web Audio Instrument Builder with Embedded
+- [<a name="braid" href="#braid-ref">1</a>] BRAID: : A Web Audio Instrument Builder with Embedded
 Code Blocks – [paper](https://pdfs.semanticscholar.org/d92e/9fe43966b903c514613feaf281d2a40a6cc0.pdf)
-- <a name="waax">2</a>: WAAX: Web Audio API eXtension – [paper](http://nime.org/proceedings/2013/nime2013_119.pdf)
-- <a name="flocking">3</a>: Flocking: A Framework for Declarative Music-Making on the Web – [paper](https://pdfs.semanticscholar.org/bcbf/b66bc4ced14beafcf9e7463c37692faa9a29.pdf)
+- [<a name="waax" href="#waax-ref">2</a>] WAAX: Web Audio API eXtension – [paper](http://nime.org/proceedings/2013/nime2013_119.pdf)
+- [<a name="flocking" href="#flocking-ref">3</a>] Flocking: A Framework for Declarative Music-Making on the Web – [paper](https://pdfs.semanticscholar.org/bcbf/b66bc4ced14beafcf9e7463c37692faa9a29.pdf)
