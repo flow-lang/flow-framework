@@ -3,13 +3,7 @@ import VirtualDOM from '../runtime/virtual-dom'
 
 import { defer } from '../utils'
 
-export default function instrument ({ init, update, audio, view, listen }) {
-  const __init = init
-  const __update = update
-  const __audio = audio
-  const __view = view
-  const __listen = listen
-
+export default function instrument (init, update, audio, view, listen) {
   // Debug mode prints a load of information to the console at every step of
   // the programs lifecycle. Generally not recommended as this is going to
   // really hurt performance. Useful to see which part of your program is a
@@ -36,7 +30,7 @@ export default function instrument ({ init, update, audio, view, listen }) {
   // $dispatch is how side side effects,  events, and calls to send() can update
   // the model.
   const $dispatch = action => defer(() => {
-    const result = __update(action, $model)
+    const result = update(action, $model)
 
     // When we need to invoke additional side effects, calls to __update can
     // reutrn an array like [ model, sideEffect ]. It's tedious to wrap every
@@ -71,19 +65,19 @@ export default function instrument ({ init, update, audio, view, listen }) {
 
       // Audio -----------------------------------------------------------------
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('$audio')
-      const graph = __audio($model)
+      const graph = audio($model)
 
       $audio.update(graph)
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.timeEnd('$audio')
       // DOM -------------------------------------------------------------------
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('$view')
-      const dom = __view($model)
+      const dom = view($model)
 
       $view.update(dom)
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.timeEnd('$view')
       // Events ----------------------------------------------------------------
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('$events')
-      const events = __listen($model)
+      const events = listen($model)
 
       // Each plugin creates events with its own __eventType property. So for each
       // plugin, filter the events list and only pass in the ones that plugin was
@@ -157,7 +151,7 @@ export default function instrument ({ init, update, audio, view, listen }) {
       }
 
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.log('Running initial update...')
-      $update([ __init(flags, $context.currentTime, $root) ])
+      $update([ init(flags, $context.currentTime, $root) ])
     },
 
     // Use this to send an Action to the runtime from some external javascript.
