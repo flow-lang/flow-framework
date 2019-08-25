@@ -1,7 +1,11 @@
 # The Flow Framework
-An Elm-inspired framework for Web Audio applications. Flow is positioned as an
+> An Elm-inspired framework for Web Audio applications. Flow is positioned as an
 alternative to frameworks like React, with a tight integration with the Web
 Audio API.
+
+---
+
+![](/assets/github-repo-splash.png)
 
 ## Motivation
 A number of projects exist to provide complete frameworks for building Web Audio
@@ -122,6 +126,10 @@ App.start({
   context: new AudioContext()
 })
 ```
+
+## Docs and Reference
+An official guide, complete with examples and a full API reference can be found
+[here](https://flow-lang.github.io/).
 
 ## Example
 It's not uncommon for frameworks to have a simple counter application to
