@@ -1,6 +1,4 @@
-import { Program } from '../../dist'
-import * as DOM from '../../dist/dom'
-import * as Audio from '../../dist/audio'
+import { Program, DOM, Audio } from '../../dist'
 import { Note, Time } from '../../dist/music'
 
 import audio from './audio'
