@@ -157,6 +157,16 @@ export default function instrument (init, update, audio, view, listen) {
     // Use this to send an Action to the runtime from some external javascript.
     send (action) {
       $dispatch(action)
+    },
+
+    // This should go at least some of the way towards tearing down a currently
+    // running Flow application. In normal circumstances you shouldn't ever need
+    // to call this, but it is necessary for the interactive playground to work
+    // correctly.
+    destroy () {
+      $audio.update([])
+      $view.update('')
+      $plugins.event.forEach(plugin => plugin.update([]))
     }
   }
 }
