@@ -191,14 +191,15 @@ export default {
 
     events.forEach(event => {
       this.$events[event] = []
-
-      window.addEventListener(event, e => {
+      this.$handlers[event] = e => {
         this.$events[event].forEach(({ selector, handler }) => {
           if (this.$isGlobal(selector) || e.target.matches(selector)) {
             handler(e)
           }
         })
-      })
+      }
+
+      window.addEventListener(event, this.$handlers[event])
     })
   },
   // Update is called every time the model is updated, and it receives a filtered
@@ -220,9 +221,18 @@ export default {
       )
     }
   },
+  // Uninstall is called if a Program's destroy method is invoked. This should
+  // clean up any event listeners so they're not left firing once the program
+  // has been closed.
+  __uninstall () {
+    events.forEach(event => {
+      window.removeEventListener(event, this.$handlers[event])
+    })
+  },
   //
   $dispatch: null,
   $events: {},
+  $handlers: {},
   $isGlobal (selector) {
     return selector === 'document' || selector === 'window'
   }
