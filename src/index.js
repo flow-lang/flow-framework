@@ -1,6 +1,8 @@
 //
 import instrument from './program/instrument'
 //
+import effect from './program/effect'
+//
 import Node from './audio/node'
 import Property from './audio/property'
 import Keyed from './audio/keyed'
