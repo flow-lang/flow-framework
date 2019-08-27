@@ -152,7 +152,10 @@ export default function instrument (init, update, audio, listen) {
     // correctly.
     destroy () {
       $audio.update([])
-      $plugins.event.forEach(plugin => plugin.__update([]))
+      $plugins.event.forEach(plugin => plugin.__destroy
+        ? plugin.__destroy()
+        : plugin.__update([])
+      )
     }
   }
 }
