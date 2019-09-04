@@ -1,7 +1,7 @@
 //
 import instrument from './program/instrument'
 //
-import effect from './effect'
+export { default as Effect } from './effect'
 //
 import Node from './audio/node'
 import Property from './audio/property'
@@ -22,6 +22,7 @@ export const Music = { Note, Time }
 
 export default {
   Program,
+  Effect,
   Audio,
   DOM,
   Music
