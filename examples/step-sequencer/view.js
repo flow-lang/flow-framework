@@ -8,20 +8,12 @@ const combineTailwindCategories = categories =>
 const button = (id, colour, attributes, children) => {
   // These are all the different parts of the Tailwind css library. They're not
   // essential to the code but they make everything look pretty.
-  const layout = ''
   const typography = 'text-white'
   const background = `bg-${colour}-600 hover:bg-${colour}-800`
   const borders = 'border-4 border-gray-900'
-  const flexbox = ''
   const spacing = 'p-2 mr-4 my-2'
-  const sizing = ''
-  const tables = ''
-  const effects = ''
-  const interactivity = ''
-  const svg = ''
   const classes = combineTailwindCategories([
-    layout, typography, background, borders, flexbox, spacing, sizing, tables,
-    effects, interactivity, svg
+    typography, background, borders, spacing
   ])
 
   return E.button([ ...attributes, classes, A.id(id) ], [
@@ -33,19 +25,11 @@ const sequencerDisplay = (rows, highlightedColumn) => {
   // These are all the different parts of the Tailwind css library. They're not
   // essential to the code but they make everything look pretty.
   const layout = 'overflow-x-scroll'
-  const typography = ''
-  const background = ''
   const borders = 'border-4 border-gray-900'
-  const flexbox = ''
   const spacing = 'my-4'
   const sizing = 'w-auto'
-  const tables = ''
-  const effects = ''
-  const interactivity = ''
-  const svg = ''
   const classes = combineTailwindCategories([
-    layout, typography, background, borders, flexbox, spacing, sizing, tables,
-    effects, interactivity, svg
+    layout, borders, spacing, sizing
   ])
 
   return E.div([ classes ], [
@@ -57,19 +41,9 @@ const sequencerRow = (highlightedColumn) => ({ name, steps }) => {
   // These are all the different parts of the Tailwind css library. They're not
   // essential to the code but they make everything look pretty.
   const layout = 'flex'
-  const typography = ''
-  const background = ''
-  const borders = ''
   const flexbox = 'items-center'
-  const spacing = ''
-  const sizing = ''
-  const tables = ''
-  const effects = ''
-  const interactivity = ''
-  const svg = ''
   const classes = combineTailwindCategories([
-    layout, typography, background, borders, flexbox, spacing, sizing, tables,
-    effects, interactivity, svg
+    layout, flexbox
   ])
 
   return E.div([ classes ], [
@@ -81,20 +55,12 @@ const sequencerRow = (highlightedColumn) => ({ name, steps }) => {
 const sequencerStep = (note, highlightedColumn) => (active, i) => {
   // These are all the different parts of the Tailwind css library. They're not
   // essential to the code but they make everything look pretty.
-  const layout = ''
   const typography = 'text-white'
   const background = `bg-gray-${active ? '900' : '600'} hover:bg-gray-800`
   const borders = 'border-4 border-gray-900'
-  const flexbox = ''
   const spacing = 'py-4 px-6'
-  const sizing = ''
-  const tables = ''
-  const effects = ''
-  const interactivity = ''
-  const svg = ''
   const classes = combineTailwindCategories([
-    layout, typography, background, borders, flexbox, spacing, sizing, tables,
-    effects, interactivity, svg
+    typography, background, borders, spacing
   ])
 
   return E.div([ A.className(`p-2 bg-${highlightedColumn == i ? 'gray-300' : 'transparent'}`)], [
@@ -115,18 +81,9 @@ export default ({ sequencer, synth }) => {
   // essential to the code but they make everything look pretty.
   const layout = 'container'
   const typography = 'font-mono'
-  const background = ''
-  const borders = ''
-  const flexbox = ''
   const spacing = 'mx-auto py-6 px-4'
-  const sizing = ''
-  const tables = ''
-  const effects = ''
-  const interactivity = ''
-  const svg = ''
   const classes = combineTailwindCategories([
-    layout, typography, background, borders, flexbox, spacing, sizing, tables,
-    effects, interactivity, svg
+    layout, typography, spacing
   ])
 
   return E.main([ classes ], [

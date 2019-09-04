@@ -1,11 +1,11 @@
-import { Program, DOM, Audio } from '../../dist'
+import { Program, Effect, Action, DOM, Audio } from '../../dist'
 import { Note, Time } from '../../dist/music'
 
 import audio from './audio'
 import view from './view'
 
 // Main ------------------------------------------------------------------------
-const App = Program.instrument({ init, update, audio, view, listen })
+const App = Program.instrument(init, update, audio, view, listen)
 
 App.use(DOM.Event)
 App.use(Audio.Event)
@@ -177,27 +177,27 @@ function update ({ action, payload }, model) {
 // Listen ----------------------------------------------------------------------
 function listen (model) {
   const listeners = [
-    DOM.Event.click('#play', () => ({ action: PLAY })),
-    DOM.Event.click('#stop', () => ({ action: STOP })),
-    DOM.Event.click('#add-step', () => ({ action: ADD_STEP })),
-    DOM.Event.click('#rmv-step', () => ({ action: RMV_STEP })),
-    DOM.Event.click('#reset-steps', () => ({ action: RESET_STEPS })),
-    DOM.Event.click('#mute-toggle', () => ({ action: MUTE_TOGGLE })),
+    DOM.Event.click('#play', () => Action(PLAY)),
+    DOM.Event.click('#stop', () => Action(STOP)),
+    DOM.Event.click('#add-step', () => Action(ADD_STEP)),
+    DOM.Event.click('#rmv-step', () => Action(RMV_STEP)),
+    DOM.Event.click('#reset-steps', () => Action(RESET_STEPS)),
+    DOM.Event.click('#mute-toggle', () => Action(MUTE_TOGGLE)),
     DOM.Event.click('[data-step]', ({ target }) => { 
       const { note, step } = target.dataset
-      return { action: TGL_STEP, payload: { note, step } }
+      return Action(TGL_STEP, { note, step })
     }),
     DOM.Event.click('[data-waveform]', ({ target }) => {
       const { waveform } = target.dataset
-      return { action: CHANGE_WAVEFORM, payload: { type: waveform } }
+      return Action(CHANGE_WAVEFORM, { type: waveform })
     }),
     DOM.Event.click('[data-delay]', ({ target }) => {
       const { delay } = target.dataset
-      return { action: CHANGE_DELAY, payload: { time: delay } }
+      return Action(CHANGE_DELAY, { time: delay })
     }),
     DOM.Event.keydown('window', ({ key }) => {
       return key == ' '
-        ? { action: model.sequencer.running ? STOP : PLAY }
+        ? Action(model.sequencer.running ? STOP : PLAY)
         : {}
     })
   ]
@@ -207,10 +207,9 @@ function listen (model) {
   // need to.
   if (model.sequencer.running) {
     listeners.push(
-      Audio.Event.every('tick', model.sequencer.stepInterval, time => ({
-        action: TICK,
-        payload: { time }
-      }))
+      Audio.Event.every('tick', model.sequencer.stepInterval, time => 
+        Action(TICK, { time })
+      )
     )
   }
 
