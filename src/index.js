@@ -1,8 +1,8 @@
 //
 import instrument from './program/instrument'
 //
-export { default as Effect } from './effect'
-export { default as Action } from './action'
+import Effect_ from './effect'
+import Action_ from './action'
 //
 import Node from './audio/node'
 import Property from './audio/property'
@@ -15,6 +15,9 @@ import Time from './music/time'
 import Element from './dom/element'
 import Attribute from './dom/attribute'
 import DOMEvent from './dom/event'
+
+export const Effect = Effect_
+export const Action = Action_
 
 export const Program = { instrument }
 export const Audio = { Node, Property, Keyed, Event: AudioEvent }
