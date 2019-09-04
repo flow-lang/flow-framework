@@ -1,0 +1,1 @@
+export default (action, payload = null) => ({ action, payload })
