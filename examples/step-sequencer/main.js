@@ -1,5 +1,5 @@
-import { Program, Effect, Action, DOM, Audio } from '../../dist'
-import { Note, Time } from '../../dist/music'
+import { Program, Effect, Action, DOM, Audio } from '../../src'
+import { Note, Time } from '../../src/music'
 
 import audio from './audio'
 import view from './view'
@@ -13,7 +13,9 @@ App.use(Audio.Event)
 App.start({
   root: document.querySelector('#app'),
   context: new AudioContext(),
-  flags: {}
+  flags: {
+    debug: true
+  }
 })
 
 // Model -----------------------------------------------------------------------
@@ -83,13 +85,13 @@ function update ({ action, payload }, model) {
           : model.sequencer.step - 1
       }
 
-      return { ...model, sequencer }
+      return [{ ...model, sequencer }]
     }
 
     case STOP: {
       const sequencer = { ...model.sequencer, running: false }
 
-      return { ...model, sequencer }
+      return [{ ...model, sequencer }]
     }
 
     case TICK: {
@@ -97,7 +99,7 @@ function update ({ action, payload }, model) {
       const step = (model.sequencer.step + 1) % model.sequencer.stepCount
       const sequencer = { ...model.sequencer, step }
 
-      return { ...model, currentTime: time, sequencer }
+      return [{ ...model, currentTime: time, sequencer }]
     }
 
     case ADD_STEP: {
@@ -107,7 +109,7 @@ function update ({ action, payload }, model) {
       }))
       const sequencer = { ...model.sequencer, rows, stepCount }
 
-      return { ...model, sequencer }
+      return [{ ...model, sequencer }]
     }
 
     case RMV_STEP: {
@@ -120,7 +122,7 @@ function update ({ action, payload }, model) {
       }))
       const sequencer = { ...model.sequencer, rows, stepCount }
 
-      return { ...model, sequencer }
+      return [{ ...model, sequencer }]
     }
 
     case TGL_STEP: {
@@ -132,7 +134,7 @@ function update ({ action, payload }, model) {
       )
       const sequencer = { ...model.sequencer, rows }
 
-      return { ...model, sequencer }
+      return [{ ...model, sequencer }]
     }
 
     case RESET_STEPS: {
@@ -141,27 +143,27 @@ function update ({ action, payload }, model) {
       )
       const sequencer = { ...model.sequencer, rows }
 
-      return { ...model, sequencer }
+      return [{ ...model, sequencer }]
     }
 
     case MUTE_TOGGLE: {
-      return { ...model, synth: {
+      return [{ ...model, synth: {
         ...model.synth, masterGain: model.synth.masterGain == 1 ? 0 : 1
-      }}
+      }}]
     }
 
     case CHANGE_WAVEFORM: {
       const { type } = payload
       const synth = { ...model.synth, type }
 
-      return { ...model, synth }
+      return [{ ...model, synth }]
     }
 
     case CHANGE_DELAY: {
       const { time } = payload
       const synth = { ...model.synth, delayTime: time === 'long' ? 1 : 0.2 }
 
-      return { ...model, synth }
+      return [{ ...model, synth }]
     }
 
     // This should serve as a handy reminder in case we forget to catch an
@@ -169,7 +171,7 @@ function update ({ action, payload }, model) {
     // returning the model unchanged.
     default: {
       console.warn(`Unhandled action: ${action}`)
-      return model
+      return [model] 
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Program, DOM, Audio, Music } from '../../dist'
+import { Program, DOM, Audio, Music } from '../../src'
 
 // Main ------------------------------------------------------------------------
 const App = Program.instrument(init, update, audio, view, listen)
@@ -16,23 +16,23 @@ function init () {
 }
 
 // Update ----------------------------------------------------------------------
-const Increment = 0
-const Decrement = 1
+const Increment = 'Increment'
+const Decrement = 'Decrement'
 
 function update ({ action }, model) {
   switch (action) {
     case Increment:
       if (model.count < model.voices.length) {
-        return { ...model, count: model.count + 1 }
+        return [{ ...model, count: model.count + 1 }]
       } else {
-        return { ...model }
+        return [{ ...model }]
       }
 
     case Decrement:
       if (model.count > 0) {
-        return { ...model, count: model.count - 1 }
+        return [{ ...model, count: model.count - 1 }]
       } else {
-        return { ...model }
+        return [{ ...model }]
       }
   }
 }
@@ -69,5 +69,7 @@ function listen (model) {
 App.start({
   root: document.querySelector('#app'),
   context: new AudioContext(),
-  flags: {}
+  flags: {
+    debug: true
+  }
 })
