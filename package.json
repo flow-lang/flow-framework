@@ -1,6 +1,6 @@
 {
   "name": "@flow-lang/framework",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "An Elm-inspired framework for interactive Web Audio applications.",
   "browser": "dist/index.js",
   "directories": {
