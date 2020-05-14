@@ -1,7 +1,8 @@
 import VirtualAudioGraph from '../runtime/virtual-audio'
 import VirtualDOM from '../runtime/virtual-dom'
 
-import { defer } from '../utils'
+import * as Debugger from '../runtime/debugger'
+import * as Utils from '../utils'
 
 export default function instrument (init, update, audio, view, listen) {
   // Debug mode prints a load of information to the console at every step of
@@ -23,21 +24,42 @@ export default function instrument (init, update, audio, view, listen) {
   let $root // The root DOM node to attach our view to
 
   let $model // To complete state of our program
+  let $debugger
 
   let $audio // The VirtualAudioGraph
   let $view // The VirtualDOM
 
   // $dispatch is how side side effects,  events, and calls to send() can update
   // the model.
-  const $dispatch = action => defer(() => {
-    const result = update(action, $model)
+  const $dispatch = action => Utils.defer(() => {
+    if (DEBUG_MODE && action.action.startsWith('__')) {
+      const result = Debugger.update(action, $debugger)
+      $debugger = result[0]
+        
+      if ($debugger.running) {
+        const [ _, model ] = $debugger.history[$debugger.pointer]
 
-    // When we need to invoke additional side effects, calls to __update can
-    // reutrn an array like [ model, sideEffect ]. It's tedious to wrap every
-    // new model in an array if we don't need effects, however, so we allow
-    // __update to return anything. Anything that isn't an array is treated
-    // like a new model and wrapped here.
-    Array.isArray(result) ? $update(result) : $update([ result ])
+        $update([ { ...model, currentTime: $context.currentTime } || $model ])
+        
+      } else {
+        $update([ $model ])
+      }
+
+      if (result[1]) result[1]($dispatch, $debugger)
+    } else if (!DEBUG_MODE || !$debugger.running) {
+      const [ model, effect = undefined ] = update(action, $model)
+
+      if (DEBUG_MODE) {
+        const result = Debugger.update(
+          Debugger.PushAction(action, model),
+          $debugger
+        )
+
+        $debugger = result[0]
+      }
+  
+      $update([ model, effect ])
+    }
   })
 
   // The internal update function. This takes the result of the users __update
@@ -56,11 +78,7 @@ export default function instrument (init, update, audio, view, listen) {
         'Did you forget to handle all of your Actions?'
       )
 
-    // A fairly naive check to see if the model has changed between updates. There
-    // is probably a performance cost to calling JSON.stringify like this, but it's
-    // potentially quicker than generating new virtual audio graphs, dom trees, and
-    // event listeners just to diff something that hasn't changed.
-    } else if (JSON.stringify($model) !== JSON.stringify(model)) {
+    } else {
       $model = model
 
       // Audio -----------------------------------------------------------------
@@ -73,11 +91,17 @@ export default function instrument (init, update, audio, view, listen) {
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('$view')
       const dom = view($model)
 
-      $view.update(dom)
+      $view.update(
+        DEBUG_MODE
+          ? (dom.children.push(Debugger.view($debugger)), dom)
+          : dom
+      )
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.timeEnd('$view')
       // Events ----------------------------------------------------------------
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('$events')
-      const events = listen($model)
+      const events = DEBUG_MODE
+        ? [ ...listen($model), ...Debugger.listen($debugger) ]
+        : listen($model)
 
       // Each plugin creates events with its own __eventType property. So for each
       // plugin, filter the events list and only pass in the ones that plugin was
@@ -151,7 +175,10 @@ export default function instrument (init, update, audio, view, listen) {
       }
 
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.log('Running initial update...')
-      $update([ init(flags, $context.currentTime, $root) ])
+      const initialModel = init(flags, $context.currentTime, $root)
+      
+      $debugger = Debugger.init(initialModel)
+      $update([ initialModel ])
     },
 
     // Use this to send an Action to the runtime from some external javascript.
