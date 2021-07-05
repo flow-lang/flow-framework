@@ -19,14 +19,14 @@ export default {
   // Install is called after a program has been started. It is always passed an
   // object with $context, $root, and $dispatch but a plugin may choose to ignore
   // any or all of these fields.
-  __install ({ $context, $dispatch }) {
+  __install({ $context, $dispatch }) {
     this.$context = $context
     this.$dispatch = $dispatch
   },
   // Update is called every time the model is updated, and it receives a filtered
   // list of all the new event listeners. The list is filtered based on the
   // __eventType defined above.
-  __update (newEvents) {
+  __update(newEvents) {
     const oldEvents = Object.keys(this.$events)
 
     for (let i = 0; i < Math.max(oldEvents.length, newEvents.length); i++) {
@@ -54,7 +54,7 @@ export default {
 
 //
 class Event {
-  constructor ({ type, time, handler }, $dispatch, $context) {
+  constructor({ type, time, handler }, $dispatch, $context) {
     this.type = type
     this.time = time
     this.handler = handler
@@ -65,7 +65,7 @@ class Event {
     this.start($dispatch, $context)
   }
 
-  start ($dispatch, $context) {
+  start($dispatch, $context) {
     this.targetTime = $context.currentTime + this.time
 
     if (this.type === 'repeat') $dispatch(this.handler($context.currentTime))
@@ -76,7 +76,10 @@ class Event {
       if (currentTime >= this.targetTime - this.lookahead) {
         const diff = this.targetTime - currentTime
 
-        $dispatch(this.handler(currentTime + diff))
+        $dispatch(this.handler({
+          type: 'Time',
+          value: currentTime + diff
+        }))
 
         switch (this.type) {
           case 'repeat':
@@ -89,12 +92,12 @@ class Event {
     }, 25)
   }
 
-  update ({ time, handler }) {
+  update({ time, handler }) {
     if (time) this.time = time
     if (handler) this.handler = handler
   }
 
-  stop () {
+  stop() {
     clearInterval(this.timerID)
   }
 }

@@ -2,9 +2,10 @@ import VirtualAudioGraph from '../runtime/virtual-audio'
 import VirtualDOM from '../runtime/virtual-dom'
 
 import * as Debugger from '../runtime/debugger'
+import * as Time from '../music/time'
 import * as Utils from '../utils'
 
-export default function instrument (init, update, audio, view, listen) {
+export default function instrument(init, update, audio, view, listen) {
   // Debug mode prints a load of information to the console at every step of
   // the programs lifecycle. Generally not recommended as this is going to
   // really hurt performance. Useful to see which part of your program is a
@@ -32,22 +33,41 @@ export default function instrument (init, update, audio, view, listen) {
   // $dispatch is how side side effects,  events, and calls to send() can update
   // the model.
   const $dispatch = action => Utils.defer(() => {
-    if (DEBUG_MODE && action.action.startsWith('__')) {
-      const result = Debugger.update(action, $debugger)
-      $debugger = result[0]
-        
-      if ($debugger.running) {
-        const [ _, model ] = $debugger.history[$debugger.pointer]
+    if ($context.state == 'suspended') $context.resume()
+    action.now = Time.from($context.currentTime)
 
-        $update([ { ...model, currentTime: $context.currentTime } || $model ])
-        
-      } else {
-        $update([ $model ])
+    if (DEBUG_MODE && action.action?.startsWith('__')) {
+      const [debuggerModel, effect, shouldUpdate] = Debugger.update(action, $debugger)
+      $debugger = debuggerModel
+
+      if ($debugger.running) {
+        const [appAction, model] = $debugger.history[$debugger.pointer]
+        const calculateRelativeTiming = v => {
+          if (typeof v === 'object' && v.type === 'Time') {
+            return { ...v, __debug_value: $context.currentTime + (v.value - appAction.now.value) }
+          }
+
+          if (Array.isArray(v)) {
+            return v
+          }
+
+          if (typeof v === 'object') {
+            return Utils.mapObject(v, calculateRelativeTiming)
+          }
+
+          return v
+        }
+        const appModel = Utils.mapObject(model, calculateRelativeTiming)
+
+        $update([appModel])
+
+      } else if (shouldUpdate) {
+        $update([$model])
       }
 
-      if (result[1]) result[1]($dispatch, $debugger)
+      effect && effect($dispatch, $debugger)
     } else if (!DEBUG_MODE || !$debugger.running) {
-      const [ model, effect = undefined ] = update(action, $model)
+      const [model, effect = undefined] = update(action, $model) || []
 
       if (DEBUG_MODE) {
         const result = Debugger.update(
@@ -57,15 +77,15 @@ export default function instrument (init, update, audio, view, listen) {
 
         $debugger = result[0]
       }
-  
-      $update([ model, effect ])
+
+      $update([model, effect])
     }
   })
 
   // The internal update function. This takes the result of the users __update
   // function and takes care of turning that new model into a new audio graph,
   // dom, and event listeners. This is also where Effects get called.
-  const $update = ([ model, effect = undefined ]) => {
+  const $update = ([model, effect = undefined]) => {
     /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('Total update time')
     /* DEBUG STATEMENT */ if (DEBUG_MODE) console.group('$update')
 
@@ -100,7 +120,7 @@ export default function instrument (init, update, audio, view, listen) {
       // Events ----------------------------------------------------------------
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.time('$events')
       const events = DEBUG_MODE
-        ? [ ...listen($model), ...Debugger.listen($debugger) ]
+        ? [...listen($model), ...Debugger.listen($debugger)]
         : listen($model)
 
       // Each plugin creates events with its own __eventType property. So for each
@@ -146,7 +166,7 @@ export default function instrument (init, update, audio, view, listen) {
     // Before a Program has been started, plugins can be registered to expand
     // its functionality. They get installed when the start method is called
     // so new plugins can't be registered after that.
-    use (plugin) {
+    use(plugin) {
       console.log(`Registering ${plugin.__pluginName} plugin.`)
       __registerPlugin(plugin)
     },
@@ -156,7 +176,7 @@ export default function instrument (init, update, audio, view, listen) {
     // their context and root node respectively. It'll also install any plugins that
     // were registered prior to calling start, before finally creating the first model
     // and performing the first render.
-    start ({ context, root, flags }) {
+    start({ context, root, flags }) {
       DEBUG_MODE = flags && flags.debug || DEBUG_MODE
 
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.log('Starting Program...')
@@ -175,14 +195,14 @@ export default function instrument (init, update, audio, view, listen) {
       }
 
       /* DEBUG STATEMENT */ if (DEBUG_MODE) console.log('Running initial update...')
-      const initialModel = init(flags, $context.currentTime, $root)
-      
-      $debugger = Debugger.init(initialModel)
-      $update([ initialModel ])
+      const initialModel = init(flags, Time.from($context.currentTime), $root)
+
+      $debugger = Debugger.init($context.currentTime, initialModel)
+      $update([initialModel])
     },
 
     // Use this to send an Action to the runtime from some external javascript.
-    send (action) {
+    send(action) {
       $dispatch(action)
     },
 
@@ -190,7 +210,7 @@ export default function instrument (init, update, audio, view, listen) {
     // running Flow application. In normal circumstances you shouldn't ever need
     // to call this, but it is necessary for the interactive playground to work
     // correctly.
-    destroy () {
+    destroy() {
       $audio.update([])
       $view.update('')
       $plugins.event.forEach(plugin => plugin.__destroy

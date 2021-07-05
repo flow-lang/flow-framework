@@ -35,6 +35,27 @@ export const ThirtysecondTripplet = 12
 export const ms = (bpm, time) => 1 / (bpm / 60 * time * 0.001)
 export const sec = (bpm, time) => ms(bpm, time) / 1000
 
+// Time Arithmetic =============================================================
+export const from = value => ({ type: 'Time', value })
+export const offset = (time, ...offsets) => {
+  if (typeof time === 'object' && time.type === 'Time') {
+    return offsets.reduce(({ type, value, __debug_value }, n) => {
+      return __debug_value
+        ? { type, value: value + n, __debug_value: __debug_value + n }
+        : { type, value: value + n }
+    }, time)
+  }
+
+  if (typeof time === 'number') {
+    return offsets.reduce((t, n) => t + n, time)
+  }
+
+  return {
+    type: 'Time',
+    value: 0
+  }
+}
+
 //
 export default {
   // Tempos
@@ -70,5 +91,8 @@ export default {
   ThirtysecondTripplet,
   // Conversions
   ms,
-  sec
+  sec,
+  // Time Arithmetic
+  from,
+  offset
 }

@@ -4,7 +4,7 @@ const AudioContext = window.AudioContext || window.webkitAudioContext
 export default class VirtualAudioGraph {
   // Static Methods ============================================================
   //
-  static prepare (graph = []) {
+  static prepare(graph = []) {
     // The first step in preparing the graph is to key each virtual node.
     // This is how we perform a diff between graphs and calculate what has
     // changed each update.
@@ -50,7 +50,7 @@ export default class VirtualAudioGraph {
   }
 
   //
-  static diff (oldNodes, newNodes) {
+  static diff(oldNodes, newNodes) {
     const patches = { created: [], updated: [], removed: [] }
 
     for (const newNode of Object.values(newNodes)) {
@@ -65,8 +65,8 @@ export default class VirtualAudioGraph {
           patches.created.push({ type: 'connection', key: newNode.key, data: connection.key.split('.') })
         })
 
-      // A node with the same key exists in both graphs, but the type has changed
-      // (eg osc -> gain) so we need to recreate the node.
+        // A node with the same key exists in both graphs, but the type has changed
+        // (eg osc -> gain) so we need to recreate the node.
       } else if (oldNode.type !== newNode.type) {
         patches.updated.push({ type: 'node', key: newNode.key, data: newNode })
 
@@ -74,9 +74,9 @@ export default class VirtualAudioGraph {
           patches.created.push({ type: 'connection', key: newNode.key, data: connection.key.split('.') })
         })
 
-      // A node with the same key exists in both graphs and the node hasn't
-      // fundamentally changed, so now we check whether properties or connections
-      // have changed.
+        // A node with the same key exists in both graphs and the node hasn't
+        // fundamentally changed, so now we check whether properties or connections
+        // have changed.
       } else {
         // Checking properties...
         for (let j = 0; j < Math.max(oldNode.properties.length, newNode.properties.length); j++) {
@@ -125,7 +125,7 @@ export default class VirtualAudioGraph {
 
   // Constructor ===============================================================
   //
-  constructor (context = new AudioContext(), opts = {}) {
+  constructor(context = new AudioContext(), opts = {}) {
     // Borrowing a convetion from virtual dom libraries, the $ sign //is used to
     // indicate "real" Web Audio bits, and the v- prefix is used to indicate
     // virtual elements.
@@ -157,7 +157,7 @@ export default class VirtualAudioGraph {
 
   // Public Methods ============================================================
   //
-  update (vGraph = []) {
+  update(vGraph = []) {
     // The accompanying library of virtual node functions
     // encourages a nested tree-like approach to describing
     // audio graphs. This isn't the easiest structure to deal
@@ -226,7 +226,7 @@ export default class VirtualAudioGraph {
   // A thin wrapper of the `AudioContext.suspend()` method. This
   // bassically exists so developers don't have to reach in and
   // touch the "real" audio context directly.
-  suspend () {
+  suspend() {
     this.$nodes.$.gain.value = 0
     this.$context.suspend()
   }
@@ -234,14 +234,14 @@ export default class VirtualAudioGraph {
   // A thin wrapper of the `AudioContext.resume()` method. This
   // bassically exists so developers don't have to reach in and
   // touch the "real" audio context directly.
-  resume () {
+  resume() {
     this.$context.resume()
     this.$nodes.$.gain.linearRampToValueAtTime(1, this.$context.currentTime + 0.1)
   }
 
   // Private Methods ===========================================================
   //
-  _createNode (key, { type, properties }) {
+  _createNode(key, { type, properties }) {
     let $node = null
 
     //
@@ -297,12 +297,12 @@ export default class VirtualAudioGraph {
       case 'MediaStreamAudioDestinationNode':
         $node = this.$context.createMediaStreamDestination()
         break
-        // TODO: How should I handle creating / grabbing the media stream?
-        // case 'MediaStreamAudioSourceNode':
-        //   $node = this.$context.createMediaStreamSource(
+      // TODO: How should I handle creating / grabbing the media stream?
+      // case 'MediaStreamAudioSourceNode':
+      //   $node = this.$context.createMediaStreamSource(
 
-        //   )
-        //   break
+      //   )
+      //   break
       case 'OscillatorNode':
         $node = this.$context.createOscillator()
         break
@@ -334,7 +334,7 @@ export default class VirtualAudioGraph {
   }
 
   //
-  _destroyNode (key) {
+  _destroyNode(key) {
     const $node = this.$nodes[key]
 
     // Certain nodes like oscillators can be stopped. It probably doesn't make
@@ -350,7 +350,7 @@ export default class VirtualAudioGraph {
   }
 
   //
-  _setProperty (key, { type, label, value }) {
+  _setProperty(key, { type, label, value }) {
     const $node = this.$nodes[key]
 
     switch (type) {
@@ -360,14 +360,18 @@ export default class VirtualAudioGraph {
       case 'AudioParam':
         $node[label].linearRampToValueAtTime(value, this.$context.currentTime + 0.05)
         break
-      case 'ScheduledAudioParam':
-        $node[label][value.method](value.target, value.time)
+      case 'ScheduledAudioParam': {
+        const time = typeof value.time === 'object' && value.time.type === 'Time'
+          ? value.time.__debug_value || value.time.value
+          : value.time
+        $node[label][value.method](value.target, time)
         break
+      }
     }
   }
 
   //
-  _removeProperty (key, { type, label, value }) {
+  _removeProperty(key, { type, label, value }) {
     const $node = this.$nodes[key]
 
     switch (type) {
@@ -383,12 +387,12 @@ export default class VirtualAudioGraph {
   }
 
   //
-  _connect (a, [b, param = null]) {
+  _connect(a, [b, param = null]) {
     if (b) this.$nodes[a].connect(param ? this.$nodes[b][param] : this.$nodes[b])
   }
 
   //
-  _disconnect (a, [b, param = null]) {
+  _disconnect(a, [b, param = null]) {
     if (b) this.$nodes[a].disconnect(param ? this.$nodes[b][param] : this.$nodes[b])
   }
 }
