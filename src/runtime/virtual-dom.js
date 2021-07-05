@@ -3,25 +3,25 @@ import { defer } from '../utils'
 export default class VirtualDOM {
   // Static Methods ============================================================
   //
-  static isText (node) {
+  static isText(node) {
     return typeof node === 'string' ||
       typeof node === 'number' ||
       typeof node === 'boolean'
   }
 
   //
-  static isVirtualNode (node) {
+  static isVirtualNode(node) {
     return typeof node === 'object' && node.attrs && node.children
   }
 
   //
-  static isComponent (node) {
+  static isComponent(node) {
     return typeof node === 'function'
   }
 
   // Constructor ===============================================================
   //
-  constructor ($root) {
+  constructor($root) {
     this.$root = $root
     this.vPrev = null
 
@@ -34,7 +34,7 @@ export default class VirtualDOM {
 
   // Public Methods ============================================================
   //
-  update (vCurr, vPrev, $root, index = 0) {
+  update(vCurr, vPrev, $root, index = 0) {
     // When update is first called it is just given the new virtual tree to diff,
     // but it is then called recursively on each child element with the appropriate
     // previous tree and root node. Because of this, we default to the original
@@ -50,29 +50,29 @@ export default class VirtualDOM {
     if (!vPrev || !$el) {
       this._append($root, vCurr)
 
-    // There is no new tree. This probably means we've
-    // removed a node (or the entire tree) from the previous
-    // tree so let's remove it from the dom.
+      // There is no new tree. This probably means we've
+      // removed a node (or the entire tree) from the previous
+      // tree so let's remove it from the dom.
     } else if (!vCurr) {
       $el && this._remove($el)
 
-    // There is a type mismatch between the previous and current
-    // trees. For example the old tree was an object representing
-    // a dom node, and now it is a string representing a text node.
+      // There is a type mismatch between the previous and current
+      // trees. For example the old tree was an object representing
+      // a dom node, and now it is a string representing a text node.
     } else if (typeof vPrev !== typeof vCurr) {
       this._replace($root, $el, vCurr)
 
-    // The current nodes are the same type AND they are both text-like.
-    // This means we can do a simple equality comparison and replace
-    // them if necessary.
+      // The current nodes are the same type AND they are both text-like.
+      // This means we can do a simple equality comparison and replace
+      // them if necessary.
     } else if (VirtualDOM.isText(vPrev) && VirtualDOM.isText(vCurr)) {
       if (vPrev !== vCurr) {
         this._replace($root, $el, vCurr)
       }
 
-    // The current nodes are the same type AND they are both virtual nodes.
-    // Here we perform a more involved diff to determine what and how
-    // to update.
+      // The current nodes are the same type AND they are both virtual nodes.
+      // Here we perform a more involved diff to determine what and how
+      // to update.
     } else if (VirtualDOM.isVirtualNode(vPrev) && VirtualDOM.isVirtualNode(vCurr)) {
       // We can safely assume if the tag has changed that the overall
       // structure of the sub tree has changed too, and so we can
@@ -81,7 +81,7 @@ export default class VirtualDOM {
       if (vPrev.tag !== vCurr.tag) {
         this._replace($root, $el, vCurr)
 
-      // Otherwise...
+        // Otherwise...
       } else {
         // First we diff the attributes on the node.
         for (let i = 0; i < vPrev.attrs.length || i < vCurr.attrs.length; i++) {
@@ -94,6 +94,7 @@ export default class VirtualDOM {
           if (!currAttr) {
             $el.removeAttribute(prevAttr.name)
           } else {
+            $el[currAttr.name] = currAttr.value
             $el.setAttribute(currAttr.name, currAttr.value)
           }
         }
@@ -105,9 +106,9 @@ export default class VirtualDOM {
         this.update(vCurr.children[i], vPrev.children[i], $el, i)
       }
 
-    // Components are functions that return some virtual dom node(s), so they
-    // need to be handled differently. Currently we don't actually support
-    // components, but this is the foundation to do so.
+      // Components are functions that return some virtual dom node(s), so they
+      // need to be handled differently. Currently we don't actually support
+      // components, but this is the foundation to do so.
     } else if (VirtualDOM.isComponent(vPrev) && VirtualDOM.isComponent(vCurr)) {
 
     }
@@ -119,7 +120,7 @@ export default class VirtualDOM {
 
   // Private Methods ===========================================================
   //
-  _create (node) {
+  _create(node) {
     if (VirtualDOM.isText(node)) {
       return document.createTextNode(`${node}`)
     }
@@ -133,6 +134,7 @@ export default class VirtualDOM {
       const $el = document.createElement(node.tag)
 
       for (const attr of node.attrs) {
+        $el[attr.name] = attr.value
         $el.setAttribute(attr.name, attr.value)
       }
 
@@ -156,17 +158,17 @@ export default class VirtualDOM {
   }
 
   //
-  _replace ($root, $el, node) {
+  _replace($root, $el, node) {
     $root.replaceChild(this._create(node), $el)
   }
 
   //
-  _append ($root, node) {
+  _append($root, node) {
     $root.appendChild(this._create(node))
   }
 
   //
-  _remove ($el) {
+  _remove($el) {
     defer(() => $el.remove())
   }
 }
