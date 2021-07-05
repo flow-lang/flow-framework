@@ -198,12 +198,21 @@ export const view = model => {
   ])
 }
 
+function throttle(delay, f) {
+  let t = Date.now()
+  return function (e) {
+    if ((t + delay - Date.now()) < 0) {
+      t = Date.now()
+      return f(e)
+    }
+  }
+}
 
 export const listen = model => {
   return [
     Event.click('#__Toggle', () => ToggleRunning()),
     Event.click('#__Toggle-Playing', () => TogglePlaying()),
-    Event.input('#__Move', e => MovePointer(Number(e.target.value) - 1)),
+    Event.input('#__Move', throttle(100, e => MovePointer(Number(e.target.value) - 1))),
     Event.click('#__Move-Back', () => MovePointer(
       model.pointer - 1 < 0
         ? 0
