@@ -1,4 +1,4 @@
-import { Element as E, Attribute as A } from '../../dist/dom'
+import { Element as E, Attribute as A } from '../src/dom'
 
 // Utils -----------------------------------------------------------------------
 const combineTailwindCategories = categories =>
@@ -16,8 +16,19 @@ const button = (id, colour, attributes, children) => {
     typography, background, borders, spacing
   ])
 
-  return E.button([ ...attributes, classes, A.id(id) ], [
+  return E.button([...attributes, classes, A.id(id)], [
     ...children
+  ])
+}
+
+const slider = (attrs) => {
+  return E.div([A.className('flex')], [
+    E.span([A.className('mr-4 my-2 p-2')], ['Frequency']),
+    E.input([
+      A.className('flex-1'),
+      A.type('range'),
+      ...attrs
+    ])
   ])
 }
 
@@ -32,7 +43,7 @@ const sequencerDisplay = (rows, highlightedColumn) => {
     layout, borders, spacing, sizing
   ])
 
-  return E.div([ classes ], [
+  return E.div([classes], [
     ...rows.map(sequencerRow(highlightedColumn))
   ])
 }
@@ -46,8 +57,8 @@ const sequencerRow = (highlightedColumn) => ({ name, steps }) => {
     layout, flexbox
   ])
 
-  return E.div([ classes ], [
-    E.span([ A.className('pl-2 pr-6 font-bold') ], [ name ]),
+  return E.div([classes], [
+    E.span([A.className('pl-2 pr-6 font-bold')], [name]),
     ...steps.map(sequencerStep(name, highlightedColumn))
   ])
 }
@@ -63,7 +74,7 @@ const sequencerStep = (note, highlightedColumn) => (active, i) => {
     typography, background, borders, spacing
   ])
 
-  return E.div([ A.className(`p-2 bg-${highlightedColumn == i ? 'gray-300' : 'transparent'}`)], [
+  return E.div([A.className(`p-2 bg-${highlightedColumn == i ? 'gray-300' : 'transparent'}`)], [
     E.button([
       A.dataCustom('step', `${i}`),
       A.dataCustom('note', note),
@@ -86,18 +97,18 @@ export default ({ sequencer, synth }) => {
     layout, typography, spacing
   ])
 
-  return E.main([ classes ], [
+  return E.main([classes], [
     // Title and info ----------------------------------------------------------
     E.section([], [
-      E.h1([ A.className('text-2xl font-bold') ], [ 'Flow.js' ])
+      E.h1([A.className('text-2xl font-bold')], ['Flow.js'])
     ]),
     // Sequencer controls ------------------------------------------------------
     E.section([], [
-      button('play', 'gray', [], [ 'play' ]),
-      button('stop', 'gray', [], [ 'stop' ]),
-      button('add-step', 'gray', [], [ 'add step' ]),
-      button('rmv-step', 'gray', [], [ 'remove step' ]),
-      button('reset-steps', 'orange', [], [ 'reset steps' ]),
+      button('play', 'gray', [], ['play']),
+      button('stop', 'gray', [], ['stop']),
+      button('add-step', 'gray', [], ['add step']),
+      button('rmv-step', 'gray', [], ['remove step']),
+      button('reset-steps', 'orange', [], ['reset steps']),
     ]),
     // Sequencer steps ---------------------------------------------------------
     E.section([], [
@@ -106,22 +117,26 @@ export default ({ sequencer, synth }) => {
     ]),
     // Synth controls ----------------------------------------------------------
     E.section([], [
-      E.h2([ A.className('text-lg font-bold') ], [ 'Synth controls:' ]),
+      E.h2([A.className('text-lg font-bold')], ['Synth controls:']),
       button('mute-toggle', 'gray', [], [
         synth.masterGain == 1 ? 'mute' : 'unmute'
       ])
     ]),
     E.section([], [
-      E.h2([ A.className('text-lg font-bold') ], [ 'Waveform:' ]),
-      button('', 'blue', [ A.dataCustom('waveform', 'sine') ], [ 'sine' ]),
-      button('', 'green', [ A.dataCustom('waveform', 'triangle') ], [ 'triangle' ]),
-      button('', 'red', [ A.dataCustom('waveform', 'sawtooth') ], [ 'sawtooth'  ]),
-      button('', 'yellow', [ A.dataCustom('waveform', 'square') ], [ 'square' ]),
+      E.h2([A.className('text-lg font-bold')]['Filter']),
+      slider([A.dataCustom('cutoff'), A.min(50), A.max(4000), A.value(synth.cutoff)]),
     ]),
     E.section([], [
-      E.h2([ A.className('text-lg font-bold') ], [ 'Delay time:' ]),
-      button('delay-short', 'purple', [ A.dataCustom('delay', 'short') ], [ 'short' ]),
-      button('delay-long', 'purple', [ A.dataCustom('delay', 'long') ], [ 'long' ]),
+      E.h2([A.className('text-lg font-bold')], ['Waveform:']),
+      button('', 'blue', [A.dataCustom('waveform', 'sine')], ['sine']),
+      button('', 'green', [A.dataCustom('waveform', 'triangle')], ['triangle']),
+      button('', 'red', [A.dataCustom('waveform', 'sawtooth')], ['sawtooth']),
+      button('', 'yellow', [A.dataCustom('waveform', 'square')], ['square']),
+    ]),
+    E.section([], [
+      E.h2([A.className('text-lg font-bold')], ['Delay time:']),
+      button('delay-short', 'purple', [A.dataCustom('delay', 'short')], ['short']),
+      button('delay-long', 'purple', [A.dataCustom('delay', 'long')], ['long']),
     ])
   ])
 }
