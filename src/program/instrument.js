@@ -33,6 +33,7 @@ export default function instrument(init, update, audio, view, listen) {
   // $dispatch is how side side effects,  events, and calls to send() can update
   // the model.
   const $dispatch = action => Utils.defer(() => {
+    if (!action) return
     if ($context.state == 'suspended') $context.resume()
     action.now = Time.from($context.currentTime)
 
